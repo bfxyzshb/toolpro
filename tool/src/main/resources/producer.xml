@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    <context:property-placeholder location="application.properties"/>
+
+    <!--配置kafkaProducer-->
+    <bean name="kafkaProducer" class="com.weibo.api.kafka.KafkaProducer">
+        <constructor-arg type="java.util.Map" index="0" ref="config"/>
+        <property name="ifThrowException" value="true"/>
+    </bean>
+
+    <!--具体配置-->
+    <bean name="config" class="java.util.HashMap">
+        <constructor-arg>
+            <map>
+                <!--消息幂等性,https://hevodata.com/blog/kafka-exactly-once/-->
+                <!--https://cwiki.apache.org/confluence/display/KAFKA/KIP-185%3A+Make+exactly+once+in+order+delivery+per+partition+the+default+producer+setting-->
+                <!--
+                    When set to 'true', the producer will ensure that exactly one copy of each message is written in the stream.
+                    If 'false', producer retries due to broker failures, etc., may write duplicates of the retried message in the stream.
+                    Note that enabling idempotence requires <code>" + MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION + "</code> to be less than or equal to 5,
+                    <code>" + RETRIES_CONFIG + "</code> to be greater than 0 and " + ACKS_CONFIG + " must be 'all'.
+                    If these values are not explicitly set by the user, suitable values will be chosen.
+                    If incompatible values are set,a ConfigException will be thrown.-->
+                <!--开启消息幂等性，如果不需要，可以注释-->
+                <entry key="enable.idempotence" value="true"/>
+                <!--开启事务，Kafka事务机制的实现主要是为了支持Exactly Once、操作的原子性、有状态操作的可恢复性-->
+                <!--如果不需要，可以注释-->
+                <entry key="use.transaction" value="true"/>
+                <!--事务id，需要保证唯一-->
+                <!--如果不需要，可以注释-->
+                <entry key="transactional.id" value="test-1"/>
+                <entry key="acks" value="all"/>
+                <entry key="retries" value="3"/>
+                <entry key="max.in.flight.requests.per.connection" value="2"/>
+
+                <!--如果配置了bootstrap.servers，就不需要配置zookeeper.servers.for.discover.configs-->
+                <entry key="zookeeper.servers.for.discover.configs" value="${zookeeper.servers.for.discover.configs}"/>
+                <!--如果配置了zookeeper.servers.for.discover.configs，就不需要配置bootstrap.servers了-->
+                <!--<entry key="bootstrap.servers" value=" ${bootstrap.servers}"/>-->
+
+                <!-- 采用同步发送时的超时时间配置项, 默认1s -->
+                <entry key="producer.sync.send.timeout.ms" value="500"/>
+                <!-- 标识kafka集群名称, 默认default, 目前主要用于profile日志 -->
+                <entry key="kafka.cluster.name" value="${kafkaClusterName}"/>
+
+                <entry key="client.id" value="${client.id}"/>
+
+                <!--不再需要配置zookeeper.connect了-->
+                <!--<entry key="zookeeper.connect" value="${zookeeper.connect}"/>-->
+
+                <entry key="key.serializer" value="org.apache.kafka.common.serialization.ByteArrayDeserializer"/>
+                <entry key="value.serializer" value="org.apache.kafka.common.serialization.ByteArrayDeserializer"/>
+            </map>
+        </constructor-arg>
+    </bean>
+
+</beans>

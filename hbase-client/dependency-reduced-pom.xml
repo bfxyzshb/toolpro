@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.weibo.hbase.client</groupId>
+  <artifactId>hbase-client</artifactId>
+  <version>0.96.1.1-shade-hadoop2</version>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <relocations>
+            <relocation>
+              <pattern>com.google.protobuf</pattern>
+              <shadedPattern>com.weibo.protobuf</shadedPattern>
+            </relocation>
+          </relocations>
+          <filters>
+            <filter>
+              <artifact>*:*</artifact>
+              <excludes>
+                <exclude>META-INF/*.SF</exclude>
+                <exclude>META-INF/*.DSA</exclude>
+                <exclude>META-INF/*.RSA</exclude>
+              </excludes>
+            </filter>
+            <filter>
+              <artifact>*:*</artifact>
+              <excludes>
+                <exclude>org/slf4j/**</exclude>
+                <exclude>org/apache/log4j/**</exclude>
+                <exclude>org/codehaus/**</exclude>
+                <exclude>org/apache/hadoop/ipc/**</exclude>
+                <exclude>org/apache/hadoop/fs/**</exclude>
+              </excludes>
+            </filter>
+          </filters>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>2.4</version>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+

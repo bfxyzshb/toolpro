@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.hbase.client</groupId>
+    <artifactId>hbase-client</artifactId>
+    <version>0.96.1.1-shade-hadoop2</version>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-client</artifactId>
+            <version>0.96.1.1-hadoop2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>2.5.0</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <relocations>
+                        <!--将protobuf-java的jar包com.google.protobuf包名改为 com.protobuf
+                         同时也会将hbase-client中import com.google.protobuf 改为 import com.protobuf
+                         这样的话hbase-client依赖只是2.5.0相当于修改了类的加载路径-->
+                        <relocation>
+                            <pattern>com.google.protobuf</pattern>
+                            <shadedPattern>com.weibo.protobuf</shadedPattern>
+                        </relocation>
+                    </relocations>
+
+                    <filters>
+                        <filter>
+                            <!--排除META-INF 要不da成的war无法正常运行-->
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                        <filter>
+                            <!--以下过滤是群发依赖slf4j和log4j版本和hbase-client依赖的版本不一致
+                             所以排除掉,可以根据需要灵活排除不需要的类或包-->
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>org/slf4j/**</exclude>
+                                <exclude>org/apache/log4j/**</exclude>
+                                <exclude>org/codehaus/**</exclude>
+                                <exclude>org/apache/hadoop/ipc/**</exclude>
+                                <exclude>org/apache/hadoop/fs/**</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
+
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.4</version>
+            </plugin>
+
+        </plugins>
+
+    </build>
+
+</project>
