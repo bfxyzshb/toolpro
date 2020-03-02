@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.hbase.client</groupId>
-    <artifactId>hbase-client</artifactId>
-    <version>0.96.1.1-shade-hadoop2</version>
+    <groupId>com.weibo.hbase.client</groupId>
+    <artifactId>hbase-weibo-client</artifactId>
+    <version>0.96.1.1.3-shade-hadoop2</version>
     <dependencies>
         <dependency>
             <groupId>org.apache.hbase</groupId>
@@ -20,7 +20,18 @@
             <version>2.5.0</version>
         </dependency>
     </dependencies>
-
+    <distributionManagement>
+        <repository>
+            <id>weibo.default</id>
+            <name>Internal Release Repository</name>
+            <url>http://maven.intra.weibo.com/nexus/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>weibo.snapshots</id>
+            <name>Internal Snapshot Repository</name>
+            <url>http://maven.intra.weibo.com/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
     <build>
         <plugins>
             <plugin>
@@ -37,12 +48,12 @@
                 </executions>
                 <configuration>
                     <relocations>
-                        <!--将protobuf-java的jar包com.google.protobuf包名改为 com.protobuf
-                         同时也会将hbase-client中import com.google.protobuf 改为 import com.protobuf
+                        <!--将protobuf-java的jar包com.google.protobuf包名改为 com.weibo.protobuf
+                         同时也会将hbase-client中import com.google.protobuf 改为 import com.weibo.protobuf
                          这样的话hbase-client依赖只是2.5.0相当于修改了类的加载路径-->
                         <relocation>
                             <pattern>com.google.protobuf</pattern>
-                            <shadedPattern>com.protobuf</shadedPattern>
+                            <shadedPattern>com.weibo.protobuf</shadedPattern>
                         </relocation>
                     </relocations>
 
@@ -66,6 +77,9 @@
                                 <exclude>org/codehaus/**</exclude>
                                 <exclude>org/apache/hadoop/ipc/**</exclude>
                                 <exclude>org/apache/hadoop/fs/**</exclude>
+                                <exclude>org/apache/hadoop/conf/**</exclude>
+                                <exclude>org/apache/hadoop/io/**</exclude>
+                                <exclude>org/apache/hadoop/util/**</exclude>
                             </excludes>
                         </filter>
                     </filters>
